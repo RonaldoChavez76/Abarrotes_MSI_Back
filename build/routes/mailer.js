@@ -23,7 +23,7 @@ router.post('/send-email', (req, res) => __awaiter(void 0, void 0, void 0, funct
         service: 'Gmail', // O usa un servicio SMTP como Mailtrap u Outlook
         auth: {
             user: 'chavezronaldo675@gmail.com',
-            pass: 'tu-contraseña',
+            pass: 'wfwu pqzm ofsd nhrt',
         },
     });
     // Contenido del correo

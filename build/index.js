@@ -11,6 +11,7 @@ const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 const carritoRoutes_1 = __importDefault(require("./routes/carritoRoutes"));
 const usuariosRoutes_1 = __importDefault(require("./routes/usuariosRoutes"));
+const emailRoutes_1 = __importDefault(require("./routes/emailRoutes"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -29,6 +30,7 @@ class Server {
         this.app.use('/api/productos', productosRoutes_1.default); // Aquí se definen las rutas para productos
         this.app.use('/api/carrito', carritoRoutes_1.default);
         this.app.use('/api/usuario', usuariosRoutes_1.default);
+        this.app.use('/api/email', emailRoutes_1.default);
         // Aquí puedes definir tus rutas
     }
     start() {

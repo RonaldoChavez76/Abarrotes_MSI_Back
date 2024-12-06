@@ -15,9 +15,9 @@ class UsuariosRoutes {
         this.router.post('/', usuariosController_1.default.createUs);
         this.router.delete('/:id', usuariosController_1.default.delete);
         this.router.put('/:id', usuariosController_1.default.update);
-        this.router.post('/login', usuariosController_1.default.login); // Nueva ruta para login
+        this.router.post('/login', usuariosController_1.default.login);
         this.router.get('/:id', usuariosController_1.default.getOne);
-        // Agrega esta línea en la configuración de rutas
+        //this.router.post('/enviar-correo', usuariosController.enviarCorreo);
         this.router.get('/tipo_usuario/:id', usuariosController_1.default.getByTipoUsuario);
     }
 }
