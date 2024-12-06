@@ -16,63 +16,131 @@ const database_1 = __importDefault(require("../database"));
 class ProductosController {
     list(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
-            const productos = yield database_1.default.query('SELECT * FROM productos');
-            resp.json(productos);
+            try {
+                // Obtener la lista de productos
+                const [productos] = yield database_1.default.query('SELECT * FROM productos');
+                resp.json(productos); // Devolver los productos en la respuesta
+            } catch (error) {
+                resp.status(500).json({ message: 'Error al obtener los productos', error: error.message });
+            }
         });
     }
+    
     create(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(req.body);
-            yield database_1.default.query('INSERT INTO productos set ?', [req.body]);
-            resp.json({ message: 'Product Saved' });
+            const connection = yield database_1.default.getConnection(); // Obtener conexión
+            try {
+                console.log(req.body); // Imprimir datos del cuerpo de la solicitud para depuración
+                const [result] = yield connection.query('INSERT INTO productos SET ?', [req.body]); // Insertar el producto
+                resp.json({ message: 'Product Saved', id: result.insertId }); // Retornar el ID del nuevo producto insertado
+            } catch (error) {
+                resp.status(500).json({ message: 'Error al guardar el producto', error: error.message }); // Manejo de errores
+            } finally {
+                connection.release(); // Liberar la conexión
+            }
         });
     }
+    
     createUs(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(req.body);
-            yield database_1.default.query('INSERT INTO usuarios set ?', [req.body]);
-            resp.json({ message: 'El usuario se registro con exito' });
+            const connection = yield database_1.default.getConnection(); // Obtener conexión
+            try {
+                console.log(req.body); // Imprimir datos del cuerpo de la solicitud para depuración
+                const [result] = yield connection.query('INSERT INTO usuarios SET ?', [req.body]); // Insertar el usuario
+                resp.json({ message: 'El usuario se registró con éxito', id: result.insertId }); // Retornar el ID del nuevo usuario insertado
+            } catch (error) {
+                resp.status(500).json({ message: 'Error al registrar el usuario', error: error.message }); // Manejo de errores
+            } finally {
+                connection.release(); // Liberar la conexión
+            }
         });
     }
+    
     delete(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
-            yield database_1.default.query('DELETE FROM productos WHERE id =?', [id]);
-            resp.json({ message: 'The product was deleted' });
+            const connection = yield database_1.default.getConnection(); // Obtener la conexión
+            try {
+                const [result] = yield connection.query('DELETE FROM productos WHERE id = ?', [id]); // Ejecutar la consulta de eliminación
+                if (result.affectedRows > 0) {
+                    resp.json({ message: 'El producto fue eliminado' }); // Si se elimina el producto, retornar un mensaje de éxito
+                } else {
+                    resp.status(404).json({ message: 'Producto no encontrado' }); // Si no se encuentra el producto
+                }
+            } catch (error) {
+                resp.status(500).json({ message: 'Error al eliminar el producto', error: error.message }); // Manejo de errores
+            } finally {
+                connection.release(); // Liberar la conexión
+            }
         });
     }
+    
     listCat(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
             const { idC } = req.params;
-            const productos = yield database_1.default.query(`
-		SELECT * FROM productos WHERE id_categoria = ? 
-		`, [idC]);
-            resp.json(productos);
+            const connection = yield database_1.default.getConnection(); // Obtener la conexión
+            try {
+                const [productos] = yield connection.query('SELECT * FROM productos WHERE id_categoria = ?', [idC]); // Ejecutar la consulta
+                resp.json(productos); // Devolver los productos encontrados
+            } catch (error) {
+                resp.status(500).json({ message: 'Error al obtener productos por categoría', error: error.message }); // Manejo de errores
+            } finally {
+                connection.release(); // Liberar la conexión
+            }
         });
     }
+    
     listCatTop(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
-            const productoTop = yield database_1.default.query('SELECT * FROM productos ORDER BY stock ASC LIMIT 6');
-            resp.json(productoTop);
+            const connection = yield database_1.default.getConnection(); // Obtener la conexión
+            try {
+                const [productoTop] = yield connection.query('SELECT * FROM productos ORDER BY stock ASC LIMIT 6'); // Ejecutar la consulta
+                resp.json(productoTop); // Devolver los productos encontrados
+            } catch (error) {
+                resp.status(500).json({ message: 'Error al obtener los productos más vendidos', error: error.message }); // Manejo de errores
+            } finally {
+                connection.release(); // Liberar la conexión
+            }
         });
     }
+    
     update(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
-            yield database_1.default.query('UPDATE productos set ? WHERE id = ?', [req.body, id]);
-            resp.json({ message: 'The product was updated' });
+            const connection = yield database_1.default.getConnection(); // Obtener la conexión
+            try {
+                const [result] = yield connection.query('UPDATE productos SET ? WHERE id = ?', [req.body, id]); // Ejecutar la consulta
+                if (result.affectedRows > 0) { // Verificar si se actualizó algún registro
+                    resp.json({ message: 'The product was updated' });
+                } else {
+                    resp.status(404).json({ message: 'Product not found' });
+                }
+            } catch (error) {
+                resp.status(500).json({ message: 'Error updating the product', error: error.message }); // Manejo de errores
+            } finally {
+                connection.release(); // Liberar la conexión
+            }
         });
     }
+    
     getOne(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
-            const productos = yield database_1.default.query('SELECT * FROM productos WHERE id = ?', [id]);
-            if (productos.length > 0) {
-                return resp.json(productos[0]);
+            const connection = yield database_1.default.getConnection(); // Obtener la conexión
+            try {
+                const [productos] = yield connection.query('SELECT * FROM productos WHERE id = ?', [id]); // Ejecutar la consulta
+                if (productos.length > 0) {
+                    return resp.json(productos[0]); // Devolver el primer producto encontrado
+                }
+                resp.status(404).json({ text: 'The product doesn\'t exist' }); // Si no se encuentra el producto
+            } catch (error) {
+                resp.status(500).json({ message: 'Error retrieving the product', error: error.message }); // Manejo de errores
+            } finally {
+                connection.release(); // Liberar la conexión
             }
-            resp.status(404).json({ text: 'The product does`nt exists' });
         });
     }
+    
 }
 const productosController = new ProductosController();
 exports.default = productosController;

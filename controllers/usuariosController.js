@@ -16,25 +16,55 @@ const database_1 = __importDefault(require("../database"));
 class UsuariosController {
     createUs(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(req.body);
-            yield database_1.default.query('INSERT INTO usuarios set ?', [req.body]);
-            resp.json({ message: 'User Saved' });
+            const connection = yield database_1.default.getConnection(); // Obtener la conexión
+            try {
+                console.log(req.body); // Para depuración, muestra los datos del cuerpo de la solicitud
+                yield connection.query('INSERT INTO usuarios SET ?', [req.body]); // Insertar los datos en la tabla "usuarios"
+                resp.json({ message: 'User Saved' }); // Respuesta exitosa
+            } catch (error) {
+                resp.status(500).json({ message: 'Error saving user', error: error.message }); // Manejo de errores
+            } finally {
+                connection.release(); // Liberar la conexión
+            }
         });
     }
+    
     update(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
-            yield database_1.default.query('UPDATE usuarios set ? WHERE id = ?', [req.body, id]);
-            resp.json({ message: 'The user was updated' });
+            const connection = yield database_1.default.getConnection(); // Obtener la conexión
+            try {
+                // Realizar la actualización de los datos del usuario
+                yield connection.query('UPDATE usuarios SET ? WHERE id = ?', [req.body, id]);
+                resp.json({ message: 'The user was updated' }); // Respuesta exitosa
+            } catch (error) {
+                resp.status(500).json({ message: 'Error updating user', error: error.message }); // Manejo de errores
+            } finally {
+                connection.release(); // Liberar la conexión
+            }
         });
     }
+    
     delete(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
-            yield database_1.default.query('DELETE FROM usuarios WHERE id =?', [id]);
-            resp.json({ message: 'The user was deleted' });
+            const connection = yield database_1.default.getConnection(); // Obtener la conexión
+            try {
+                // Ejecutar la consulta de eliminación
+                const [result] = yield connection.query('DELETE FROM usuarios WHERE id = ?', [id]);
+                if (result.affectedRows > 0) {
+                    resp.json({ message: 'The user was deleted' }); // Respuesta exitosa si se eliminó un usuario
+                } else {
+                    resp.status(404).json({ message: 'User not found' }); // Si no se encuentra el usuario
+                }
+            } catch (error) {
+                resp.status(500).json({ message: 'Error deleting user', error: error.message }); // Manejo de errores
+            } finally {
+                connection.release(); // Liberar la conexión
+            }
         });
     }
+    
     /* login(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
             const { email, password } = req.body;
@@ -74,31 +104,56 @@ class UsuariosController {
     getOne(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
-            const usuarios = yield database_1.default.query('SELECT * FROM usuarios WHERE id = ?', [id]);
-            if (usuarios.length > 0) {
-                return resp.json(usuarios[0]);
+            const connection = yield database_1.default.getConnection(); // Obtener la conexión
+            try {
+                const [usuarios] = yield connection.query('SELECT * FROM usuarios WHERE id = ?', [id]); // Ejecutar la consulta
+                if (usuarios.length > 0) {
+                    return resp.json(usuarios[0]); // Devolver el primer usuario encontrado
+                }
+                resp.status(404).json({ text: 'The user doesn\'t exist' }); // Si no se encuentra el usuario
+            } catch (error) {
+                resp.status(500).json({ message: 'Error retrieving the user', error: error.message }); // Manejo de errores
+            } finally {
+                connection.release(); // Liberar la conexión
             }
-            resp.status(404).json({ text: 'The user does`nt exists' });
         });
     }
+    
+    // Listar todos los usuarios
     list(req, resp) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const usuarios = yield database_1.default.query('SELECT * FROM usuarios');
-            resp.json(usuarios);
-        });
+    return __awaiter(this, void 0, void 0, function* () {
+        const connection = yield database_1.default.getConnection(); // Obtener la conexión
+        try {
+            const [usuarios] = yield connection.query('SELECT * FROM usuarios'); // Ejecutar la consulta
+            resp.json(usuarios); // Enviar los resultados como respuesta
+        } catch (error) {
+            resp.status(500).json({ message: 'Error retrieving users', error: error.message }); // Manejo de errores
+        } finally {
+            connection.release(); // Liberar la conexión
+        }
+    });
     }
+
+    // Obtener usuarios por tipo de usuario
     getByTipoUsuario(req, resp) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { id } = req.params;
-            const usuarios = yield database_1.default.query('SELECT * FROM usuarios WHERE id_tipo_usuario = ?', [id]);
+    return __awaiter(this, void 0, void 0, function* () {
+        const { id } = req.params;
+        const connection = yield database_1.default.getConnection(); // Obtener la conexión
+        try {
+            const [usuarios] = yield connection.query('SELECT * FROM usuarios WHERE id_tipo_usuario = ?', [id]); // Ejecutar la consulta
             if (usuarios.length > 0) {
-                resp.json(usuarios);
+                resp.json(usuarios); // Enviar los resultados si se encuentran usuarios
+            } else {
+                resp.status(404).json({ message: 'No users found for this type' }); // Si no se encuentran usuarios
             }
-            else {
-                resp.status(404).json({ message: 'No users found for this type' });
-            }
-        });
+        } catch (error) {
+            resp.status(500).json({ message: 'Error retrieving users by type', error: error.message }); // Manejo de errores
+        } finally {
+            connection.release(); // Liberar la conexión
+        }
+    });
     }
+
 }
 const usuariosController = new UsuariosController();
 exports.default = usuariosController;
