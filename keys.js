@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
     database: {
-        host: 'localhost', //si estuviera externa la base de datos aquí se pondría la IP
-        user: 'root',
-        password: '',
-        database: 'ng_products'
-        //port: 51795
+        host: ' db-msi-2410-do-user-18506555-0.l.db.ondigitalocean.com', //si estuviera externa la base de datos aquí se pondría la IP
+        user: 'doadmin',
+        password: 'AVNS_BfWhBUQyau8resGOW5i',
+        database: 'defaultdb',
+        port: 25060
     }
 };
