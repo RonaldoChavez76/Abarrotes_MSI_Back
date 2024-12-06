@@ -17,6 +17,7 @@
     "express": "^4.19.2",
     "git": "^0.1.5",
     "morgan": "^1.10.0",
+    "mysql2": "^3.11.5",
     "nodemailer": "^6.9.16",
     "npm-git-install": "^0.3.0",
     "promise-mysql": "^3.3.1",
