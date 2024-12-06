@@ -35,7 +35,7 @@ class UsuariosController {
             resp.json({ message: 'The user was deleted' });
         });
     }
-    login(req, resp) {
+    /* login(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
             const { email, password } = req.body;
             const result = yield database_1.default.query('SELECT u.id, u.nombre, u.email, tu.id AS tipo_usuario FROM usuarios u JOIN tipo_usuario tu ON u.id_tipo_usuario = tu.id WHERE u.email = ? AND u.password = ?', [email, password]);
@@ -46,7 +46,31 @@ class UsuariosController {
                 resp.status(401).json({ message: 'Invalid email or password' });
             }
         });
+    } */
+    login(req, resp) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { email, password } = req.body;
+    
+            try {
+                // Realizamos la consulta con mysql2/promise
+                const [result] = yield database_1.default.query(
+                    'SELECT u.id, u.nombre, u.email, tu.id AS tipo_usuario FROM usuarios u JOIN tipo_usuario tu ON u.id_tipo_usuario = tu.id WHERE u.email = ? AND u.password = ?',
+                    [email, password]
+                );
+    
+                // Verificamos si hay resultados
+                if (result.length > 0) {
+                    resp.json(result[0]); // Devolvemos el primer resultado
+                } else {
+                    resp.status(401).json({ message: 'Invalid email or password' });
+                }
+            } catch (error) {
+                console.error('Error en la consulta login:', error);
+                resp.status(500).json({ message: 'Internal Server Error' });
+            }
+        });
     }
+    
     getOne(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
