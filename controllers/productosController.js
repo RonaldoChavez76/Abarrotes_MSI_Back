@@ -95,14 +95,20 @@ class ProductosController {
             const connection = yield database_1.default.getConnection(); // Obtener la conexión
             try {
                 const [productoTop] = yield connection.query('SELECT * FROM productos ORDER BY stock ASC LIMIT 6'); // Ejecutar la consulta
-                resp.json(productoTop); // Devolver los productos encontrados
+                if (productoTop.length > 0) {
+                    resp.json(productoTop); // Devolver los productos encontrados
+                } else {
+                    resp.status(404).json({ message: 'No products found' }); // Si no hay productos
+                }
             } catch (error) {
+                console.error(error); // Mostrar el error en consola para depuración
                 resp.status(500).json({ message: 'Error al obtener los productos más vendidos', error: error.message }); // Manejo de errores
             } finally {
                 connection.release(); // Liberar la conexión
             }
         });
     }
+    
     
     update(req, resp) {
         return __awaiter(this, void 0, void 0, function* () {
