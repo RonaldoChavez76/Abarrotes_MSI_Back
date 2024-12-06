@@ -1,18 +1,17 @@
 "use strict";
 
-const mysql = require('mysql2/promise'); // Usamos mysql2 con soporte para promesas
-const keys = require('./keys'); // Importamos la configuración
+const mysql = require('mysql2/promise');
 
-// Crear la conexión usando mysql2/promise
+// Crear la conexión usando variables de entorno
 const pool = mysql.createPool({
-    host: keys.database.host,
-    user: keys.database.user,
-    password: keys.database.password,
-    database: keys.database.database,
-    port: keys.database.port,
-    waitForConnections: true, // Para manejar múltiples conexiones
-    connectionLimit: 10,      // Límite de conexiones en el pool
-    queueLimit: 0             // Sin límite de cola
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
 // Probar la conexión
@@ -20,7 +19,7 @@ const pool = mysql.createPool({
     try {
         const connection = await pool.getConnection();
         console.log('DB is connected');
-        connection.release(); // Liberar la conexión al pool
+        connection.release();
     } catch (error) {
         console.error('Database connection error:', error.message);
     }
